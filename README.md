@@ -2,7 +2,7 @@
 
 # 🏥 Health Insurance Data Warehouse
 
-### Production-Ready Data Pipeline for Health & Insurance Analytics
+### Complete Enterprise Data Warehouse with Dimensional Modeling & Analytics
 
 [![dbt](https://img.shields.io/badge/dbt-1.7+-FF694B?style=for-the-badge&logo=dbt&logoColor=white)](https://www.getdbt.com/)
 [![BigQuery](https://img.shields.io/badge/Google_BigQuery-4285F4?style=for-the-badge&logo=googlebigquery&logoColor=white)](https://cloud.google.com/bigquery)
@@ -10,11 +10,11 @@
 [![SQL](https://img.shields.io/badge/SQL-Production_Ready-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white)](https://github.com)
 
 <p align="center">
-  <strong>Modern ELT pipeline built with dbt and BigQuery</strong><br>
-  Featuring 39+ automated tests, comprehensive data quality validation, and full documentation
+  <strong>5-layer data warehouse built with dbt and BigQuery</strong><br>
+  Featuring star schema, data marts, 39+ automated tests, and comprehensive analytics
 </p>
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Architecture](#-architecture) • [Documentation](#-documentation) • [Tests](#-testing)
+[Features](#-features) • [Quick Start](#-quick-start) • [Architecture](#-architecture) • [Star Schema](#-star-schema) • [Data Marts](#-data-marts)
 
 ---
 
@@ -22,7 +22,7 @@
 
 ## 🎯 Overview
 
-This project delivers a **production-ready data warehouse** for health and insurance analytics, implementing modern Data Engineering best practices from HWR Berlin's Data Warehouse course.
+This project delivers a **complete enterprise data warehouse** for health and insurance analytics with 5 architectural layers: staging, cleaned, attribution, dimensional (star schema), and analytics (data marts).
 
 ### ✨ Highlights
 
@@ -30,40 +30,40 @@ This project delivers a **production-ready data warehouse** for health and insur
 <tr>
 <td width="50%">
 
-**🔄 Complete ELT Pipeline**
-- 4 source tables → staging → cleaned
-- ~10,000+ rows transformed
-- Automated quality validation
-- Full data lineage tracking
+**🏗️ 5-Layer Architecture**
+- Staging → Cleaned → Attribution → Star Schema → Data Marts
+- 18 dbt models across 5 BigQuery datasets
+- ~94,000 rows in fact table
+- Full dimensional modeling
 
 </td>
 <td width="50%">
 
 **🧪 Comprehensive Testing**
 - 39+ automated quality tests
-- Primary key validation
-- Foreign key integrity
-- Range & business rule checks
+- Primary & foreign key validation
+- Referential integrity checks
+- Range & business rule validation
 
 </td>
 </tr>
 <tr>
 <td width="50%">
 
-**📊 Data Quality Engineering**
-- Deduplication logic
-- Multi-format date parsing
-- Context-aware NULL handling
-- Invalid value filtering
+**📊 Star Schema & Data Marts**
+- 3 dimension tables + 1 fact table
+- 5 pre-aggregated analytics tables
+- Customer 360 view with risk scoring
+- BI-ready for Looker/Tableau/Power BI
 
 </td>
 <td width="50%">
 
-**📚 Full Documentation**
-- Architecture diagrams
-- Data lineage flows
-- Troubleshooting guides
-- API-style dbt docs
+**📚 Production-Grade Docs**
+- 13+ markdown documentation files
+- Architecture diagrams & lineage
+- Role-based navigation guides
+- Complete deployment instructions
 
 </td>
 </tr>
@@ -73,54 +73,84 @@ This project delivers a **production-ready data warehouse** for health and insur
 
 ## 🏗️ Architecture
 
+### **Complete 5-Layer Data Warehouse**
+
 ```mermaid
-graph LR
-    A[Raw Data<br/>BigQuery] --> B[Staging Layer<br/>Views]
-    B --> C[Cleaned Layer<br/>Tables]
-    C --> D[BI Tools]
-    C --> E[ML Models]
-    C --> F[Analytics]
+graph TD
+    A[Raw Sources<br/>BigQuery] --> B[Layer 1: Staging<br/>Views]
+    B --> C[Layer 2: Cleaned<br/>Tables]
+    C --> D[Layer 2b: Attribution<br/>Synthetic Joins]
+    D --> E[Layer 3: Star Schema<br/>Dimensions + Fact]
+    E --> F[Layer 4: Data Marts<br/>Analytics]
+    F --> G[BI Tools]
 
     style A fill:#ff6b6b
     style B fill:#4ecdc4
     style C fill:#45b7d1
-    style D fill:#96ceb4
-    style E fill:#ffeaa7
-    style F fill:#dfe6e9
+    style D fill:#f39c12
+    style E fill:#9b59b6
+    style F fill:#16a085
+    style G fill:#27ae60
 ```
 
-### 📦 Data Pipeline Flow
+### 📦 Complete Data Pipeline Flow
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    RAW SOURCES (4 tables)                   │
-│  • Sleep Health (374 rows)                                  │
-│  • Smartwatch Data (10,001 rows)                            │
-│  • Insurance Person (124 rows)                              │
-│  • Insurance Facts (365 rows)                               │
-└─────────────────────────────────────────────────────────────┘
-                           ↓
-                    STAGING LAYER (Views)
-        ┌──────────────────────────────────────┐
-        │  • Type casting                      │
-        │  • Column rename                     │
-        │  • TRIM/LOWER/UPPER                  │
-        └──────────────────────────────────────┘
-                           ↓
-                   CLEANED LAYER (Tables)
-        ┌──────────────────────────────────────┐
-        │  • Deduplication                     │
-        │  • Validation (39+ tests)            │
-        │  • Standardization                   │
-        │  • Quality flags                     │
-        └──────────────────────────────────────┘
-                           ↓
-              ┌─────────────────────────┐
-              │  CONSUMPTION LAYER      │
-              │  • Dashboards           │
-              │  • ML Models            │
-              │  • Reports              │
-              └─────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│         LAYER 0: RAW SOURCES (4 tables)                 │
+│  raw_dataset                                            │
+│    ├── Sleep Health (374 rows)                          │
+│    ├── Smartwatch Data (10,001 rows)                    │
+│    ├── Insurance Person (124 rows)                      │
+│    └── Insurance Facts (365 rows)                       │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│       LAYER 1: STAGING (4 views)                        │
+│  raw_dataset_staging                                    │
+│    • Type casting & column renaming                     │
+│    • Minimal transformation                             │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│       LAYER 2: CLEANED (5 tables)                       │
+│  raw_dataset_cleaned                                    │
+│    • Deduplication & validation                         │
+│    • 39+ automated tests                                │
+│    • Quality flags & standardization                    │
+│    • Attribution table (~94K rows)                      │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│       LAYER 3: STAR SCHEMA (4 tables)                   │
+│  raw_dataset_star_schema                                │
+│    ├── dim_person (72 rows)                             │
+│    ├── dim_occupation (36 rows)                         │
+│    ├── dim_insurance (97 rows)                          │
+│    └── fact_health_metrics (~94K rows)                  │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│       LAYER 4: DATA MARTS (5 tables)                    │
+│  raw_dataset_data_marts                                 │
+│    ├── dm_health_by_demographics                        │
+│    ├── dm_insurance_profitability                       │
+│    ├── dm_sleep_health_analysis                         │
+│    ├── dm_customer_360                                  │
+│    └── dm_data_quality_dashboard                        │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+           ┌──────────────────────┐
+           │   BI TOOLS & APPS    │
+           │  • Looker            │
+           │  • Tableau           │
+           │  • Power BI          │
+           └──────────────────────┘
 ```
 
 ---
@@ -162,7 +192,7 @@ health_insurance:
       location: EU
 ```
 
-**3️⃣ Install & Run**
+**3️⃣ Install & Run Complete Pipeline**
 
 ```bash
 # Install dbt packages
@@ -171,7 +201,7 @@ dbt deps
 # Test connection
 dbt debug
 
-# Run pipeline (creates all tables)
+# Run complete pipeline (all 5 layers)
 dbt run
 
 # Execute quality tests
@@ -184,10 +214,78 @@ dbt docs generate && dbt docs serve
 **Expected Output:**
 ```
 ✅ 4 staging views created
-✅ 4 cleaned tables created
+✅ 5 cleaned tables created (4 cleaned + 1 attribution)
+✅ 4 star schema tables created (3 dimensions + 1 fact)
+✅ 5 data marts created
 ✅ 39+ tests passed
 ✅ Documentation generated
 ```
+
+---
+
+## 📊 Star Schema
+
+### **Dimensional Model (Kimball Methodology)**
+
+<div align="center">
+
+```
+         ┌─────────────┐
+         │ dim_person  │
+         │  (72 rows)  │
+         └──────┬──────┘
+                │
+                │
+        ┌───────▼───────────────────┐
+        │                           │
+  ┌─────▼──────┐         ┌──────────▼────────┐
+  │dim_occupation│◄──────│fact_health_metrics│──────►│dim_insurance│
+  │  (36 rows)  │        │   (~94K rows)     │       │  (97 rows)  │
+  └─────────────┘        └───────────────────┘       └─────────────┘
+```
+
+</div>
+
+### **Dimensions**
+
+| Dimension | Rows | Primary Key | Grain |
+|-----------|------|-------------|-------|
+| **dim_person** | 72 | PersonID | One row per person |
+| **dim_occupation** | 36 | occupation_id | One row per occupation-wealth combo |
+| **dim_insurance** | 97 | insurance_id | One row per insurance status-date combo |
+
+### **Fact Table**
+
+**fact_health_metrics** (~94,000 rows)
+- **Foreign Keys**: PersonID, occupation_id, insurance_id
+- **Measures**: Doctor visits, costs, vitals, sleep metrics, activity
+- **Quality Flags**: is_invalid_*, is_missing_*
+
+**Documentation:** See [STAR_SCHEMA_README.md](dbt_health_insurance/models/star_schema/STAR_SCHEMA_README.md)
+
+---
+
+## 📈 Data Marts
+
+### **5 Pre-Aggregated Analytics Tables**
+
+| Data Mart | Rows | Purpose | Target Users |
+|-----------|------|---------|--------------|
+| **dm_health_by_demographics** | ~150 | Population health by age/gender | Public Health Analysts |
+| **dm_insurance_profitability** | ~200 | Financial performance by segment | Underwriters, Finance |
+| **dm_sleep_health_analysis** | ~80 | Sleep health research | Sleep Medicine Teams |
+| **dm_customer_360** | 72 | Complete customer profile | Customer Service, Sales |
+| **dm_data_quality_dashboard** | ~50 | Data quality monitoring | Data Engineers |
+
+### **Key Features**
+
+- ✅ **Pre-aggregated** - Fast query performance
+- ✅ **Business-focused** - Answer specific questions
+- ✅ **BI-ready** - Optimized for dashboards
+- ✅ **Health risk scoring** - 0-16 scale for customer segmentation
+- ✅ **Lifetime value metrics** - Customer profitability analysis
+
+**Documentation:** See [DATA_MARTS_README.md](dbt_health_insurance/models/data_marts/DATA_MARTS_README.md)
 
 ---
 
@@ -195,65 +293,36 @@ dbt docs generate && dbt docs serve
 
 <div align="center">
 
+### **Layer 2: Cleaned Tables**
+
 | Table | Type | Rows | Tests | Status |
 |-------|------|------|-------|--------|
 | `sleep_health_cleaned` | Dimension | ~320 | 11 | ✅ Production |
 | `smartwatch_data_cleaned` | Facts | ~9,800 | 7 | ✅ Production |
 | `health_insurance_person_cleaned` | Dimension | ~120 | 12 | ✅ Production |
 | `health_insurance_facts_cleaned` | Facts | ~350 | 9 | ✅ Production |
+| `attribution` | Synthetic | ~94,000 | - | ✅ Production |
+
+### **Layer 3: Star Schema**
+
+| Table | Type | Rows | Key Type |
+|-------|------|------|----------|
+| `dim_person` | Dimension | 72 | Natural (PersonID) |
+| `dim_occupation` | Dimension | 36 | Surrogate |
+| `dim_insurance` | Dimension | 97 | Surrogate |
+| `fact_health_metrics` | Fact | ~94,000 | Composite |
+
+### **Layer 4: Data Marts**
+
+| Table | Grain | Rows |
+|-------|-------|------|
+| `dm_health_by_demographics` | age_group × gender × family_status | ~150 |
+| `dm_insurance_profitability` | occupation × wealth × status | ~200 |
+| `dm_sleep_health_analysis` | disorder × activity × stress | ~80 |
+| `dm_customer_360` | PersonID | 72 |
+| `dm_data_quality_dashboard` | data_source × dimension | ~50 |
 
 </div>
-
-### Key Transformations Applied
-
-<table>
-<tr>
-<th>Category</th>
-<th>Transformations</th>
-</tr>
-<tr>
-<td><strong>Deduplication</strong></td>
-<td>
-
-- Full-row duplicate removal with `ROW_NUMBER()`
-- Primary key deduplication (person_id, user_id)
-- Composite key handling (person_id + year)
-
-</td>
-</tr>
-<tr>
-<td><strong>Validation</strong></td>
-<td>
-
-- Heart rate: 30-220 bpm
-- Blood oxygen: 70-100%
-- Age: 0-120 years
-- No future dates, negative costs
-
-</td>
-</tr>
-<tr>
-<td><strong>Standardization</strong></td>
-<td>
-
-- Multi-format date parsing (5 formats)
-- Gender normalization (male, female, other, unknown)
-- Text cleaning (TRIM, LOWER, UPPER)
-- Blood pressure parsing ("131/86" → systolic/diastolic)
-
-</td>
-</tr>
-<tr>
-<td><strong>NULL Handling</strong></td>
-<td>
-
-- Dimensions: `COALESCE(value, 'unknown')`
-- Metrics: `COALESCE(value, 0)`
-- Quality flags: `is_missing_*`
-
-</td>
-</tr>
-</table>
 
 ---
 
@@ -265,8 +334,10 @@ dbt docs generate && dbt docs serve
 # Run all tests
 dbt test
 
-# Test specific model
-dbt test --select sleep_health_cleaned
+# Test specific layer
+dbt test --select cleaned
+dbt test --select star_schema
+dbt test --select data_marts
 
 # Test by type
 dbt test --select test_type:unique
@@ -283,17 +354,6 @@ dbt test --select test_type:relationships
 | **Relationships** | 2 | Foreign key integrity |
 | **Range Validation** | 8 | Age, heart rate, dates, costs |
 
-### Example Test Output
-
-```
-12:45:23  Running with dbt=1.7.4
-12:45:25  Found 8 models, 39 tests, 0 snapshots
-12:45:27
-12:45:27  Completed successfully
-12:45:27
-12:45:27  Done. PASS=39 WARN=0 ERROR=0 SKIP=0 TOTAL=39
-```
-
 ---
 
 ## 📈 Data Quality Improvements
@@ -302,8 +362,8 @@ dbt test --select test_type:relationships
 
 ### Before vs After
 
-| Issue | Raw Data | Cleaned Data |
-|-------|----------|--------------|
+| Issue | Raw Data | Complete Warehouse |
+|-------|----------|-------------------|
 | Duplicates | ❌ Present | ✅ Removed |
 | Date Formats | ❌ 5 Different | ✅ Standardized DATE |
 | Gender Values | ❌ m, f, male, MALE | ✅ male, female, other, unknown |
@@ -311,6 +371,9 @@ dbt test --select test_type:relationships
 | Invalid Values | ❌ Heart rate=0 | ✅ Filtered with flags |
 | Type Safety | ❌ All STRING | ✅ INT64, FLOAT64, DATE |
 | Blood Pressure | ❌ Text "131/86" | ✅ Parsed (systolic/diastolic) |
+| **Dimensional Model** | ❌ None | ✅ **Star Schema (3 dims + 1 fact)** |
+| **Analytics Layer** | ❌ None | ✅ **5 Pre-aggregated Data Marts** |
+| **Customer Insights** | ❌ None | ✅ **360° View with Risk Scoring** |
 
 </div>
 
@@ -318,46 +381,62 @@ dbt test --select test_type:relationships
 
 ## 🔧 Data Engineering Standards
 
-This project implements **industry best practices** from HWR Berlin Expert Dossiers:
+This project implements **industry best practices**:
 
 <details>
-<summary><strong>🏛️ Expert Dossier 1: Modern Data Architecture</strong></summary>
+<summary><strong>🏛️ Modern Data Architecture</strong></summary>
 
 - ✅ ELT pattern (Extract-Load-Transform)
 - ✅ Schema-on-Read philosophy
 - ✅ Cloud data warehouse optimization (BigQuery)
-- ✅ Layered architecture (staging → cleaned → consumption)
+- ✅ 5-layer architecture (staging → cleaned → dimensional → analytics)
+- ✅ Separate datasets for logical separation
 
 </details>
 
 <details>
-<summary><strong>📊 Expert Dossier 2: Data Quality & Metadata</strong></summary>
+<summary><strong>📊 Data Quality & Metadata</strong></summary>
 
 - ✅ 6 dimensions of data quality (Accuracy, Completeness, Consistency, Timeliness, Uniqueness, Validity)
 - ✅ Data profiling approach
 - ✅ Metadata management (schema.yml)
 - ✅ Data lineage tracking (dbt DAG)
+- ✅ Quality monitoring dashboard
 
 </details>
 
 <details>
-<summary><strong>🔄 Expert Dossier 3: Transformation Logic</strong></summary>
+<summary><strong>🔄 Transformation Logic</strong></summary>
 
 - ✅ Deduplication patterns (ROW_NUMBER)
 - ✅ Type enforcement and sanitization
 - ✅ Temporal standardization
 - ✅ Reference data mapping
 - ✅ NULL handling strategies
+- ✅ Multi-format date parsing
 
 </details>
 
 <details>
-<summary><strong>📥 Expert Dossier 4: Loading Strategies</strong></summary>
+<summary><strong>📥 Dimensional Modeling</strong></summary>
 
-- ✅ Merge/Upsert patterns
+- ✅ Star schema (Kimball methodology)
 - ✅ Surrogate key architecture
-- ✅ Data quality gates (circuit breakers)
-- ✅ Quarantine approach (quality flags)
+- ✅ Slowly Changing Dimensions (SCD Type 1)
+- ✅ Fact table grain definition
+- ✅ Referential integrity
+- ✅ Data quality gates
+
+</details>
+
+<details>
+<summary><strong>📈 Analytics & BI</strong></summary>
+
+- ✅ Pre-aggregated data marts
+- ✅ Customer 360 view
+- ✅ Health risk scoring (0-16 scale)
+- ✅ Financial profitability analysis
+- ✅ BI tool integration ready
 
 </details>
 
@@ -371,27 +450,41 @@ health-insurance-data-warehouse/
 ├── 📂 dbt_health_insurance/          # Main dbt project
 │   │
 │   ├── 📂 models/
-│   │   ├── 📂 staging/               # Staging layer (4 views)
+│   │   ├── 📂 staging/               # Layer 1: Staging (4 views)
 │   │   │   ├── stg_sleep_health.sql
 │   │   │   ├── stg_smartwatch_data.sql
 │   │   │   ├── stg_health_insurance_person.sql
 │   │   │   ├── stg_health_insurance_facts.sql
-│   │   │   └── sources.yml           # Source definitions
+│   │   │   └── sources.yml
 │   │   │
-│   │   └── 📂 cleaned/               # Cleaned layer (4 tables)
-│   │       ├── sleep_health_cleaned.sql
-│   │       ├── smartwatch_data_cleaned.sql
-│   │       ├── health_insurance_person_cleaned.sql
-│   │       ├── health_insurance_facts_cleaned.sql
-│   │       └── schema.yml            # 39+ tests
+│   │   ├── 📂 cleaned/               # Layer 2: Cleaned (5 tables)
+│   │   │   ├── sleep_health_cleaned.sql
+│   │   │   ├── smartwatch_data_cleaned.sql
+│   │   │   ├── health_insurance_person_cleaned.sql
+│   │   │   ├── health_insurance_facts_cleaned.sql
+│   │   │   ├── attribution.sql       # Synthetic attribution
+│   │   │   └── schema.yml            # 39+ tests
+│   │   │
+│   │   ├── 📂 star_schema/           # Layer 3: Dimensions + Fact
+│   │   │   ├── dim_person.sql
+│   │   │   ├── dim_occupation.sql
+│   │   │   ├── dim_insurance.sql
+│   │   │   ├── fact_health_metrics.sql
+│   │   │   ├── STAR_SCHEMA_README.md
+│   │   │   └── DEPLOYMENT.md
+│   │   │
+│   │   └── 📂 data_marts/            # Layer 4: Analytics
+│   │       ├── dm_health_by_demographics.sql
+│   │       ├── dm_insurance_profitability.sql
+│   │       ├── dm_sleep_health_analysis.sql
+│   │       ├── dm_customer_360.sql
+│   │       ├── dm_data_quality_dashboard.sql
+│   │       ├── DATA_MARTS_README.md
+│   │       └── DEPLOYMENT_GUIDE.md
 │   │
 │   ├── 📂 macros/                    # Custom SQL macros
-│   │   └── test_helpers.sql
-│   │
 │   ├── 📂 analyses/                  # Data quality reports
-│   │   └── data_quality_summary.sql
-│   │
-│   ├── 📄 dbt_project.yml            # Project config
+│   ├── 📄 dbt_project.yml            # Project configuration
 │   ├── 📄 packages.yml               # dbt-utils dependency
 │   │
 │   └── 📚 Documentation
@@ -400,12 +493,9 @@ health-insurance-data-warehouse/
 │       ├── DATA_LINEAGE.md           # Lineage diagrams
 │       └── TROUBLESHOOTING.md        # Common issues
 │
-├── 📂 context/                       # Expert dossiers (reference)
-│
-├── 📄 data_cleaning_scripts.sql      # Original SQL (pre-dbt)
-├── 📄 PROJECT_SUMMARY.md             # Comprehensive overview
+├── 📄 PROJECT_SUMMARY.md             # Complete technical overview
+├── 📄 DOCUMENTATION_INDEX.md         # Documentation navigation
 ├── 📄 GITHUB_SETUP.md                # GitHub push guide
-├── 📄 GIT_SUMMARY.md                 # Git setup verification
 └── 📄 README.md                      # This file
 ```
 
@@ -420,15 +510,16 @@ health-insurance-data-warehouse/
 ### 📖 User Guides
 - [Quick Start Guide](dbt_health_insurance/QUICKSTART.md) - Get started in 5 minutes
 - [Troubleshooting](dbt_health_insurance/TROUBLESHOOTING.md) - Common issues & solutions
-- [GitHub Setup](GITHUB_SETUP.md) - Repository setup guide
+- [Documentation Index](DOCUMENTATION_INDEX.md) - Complete navigation guide
 
 </td>
 <td width="50%">
 
 ### 🔍 Technical Docs
+- [Project Summary](PROJECT_SUMMARY.md) - Complete technical overview
 - [Data Lineage](dbt_health_insurance/DATA_LINEAGE.md) - Visual flow diagrams
-- [Project Summary](PROJECT_SUMMARY.md) - Complete overview
-- [dbt Docs](http://localhost:8080) - Auto-generated (run `dbt docs serve`)
+- [Star Schema Guide](dbt_health_insurance/models/star_schema/STAR_SCHEMA_README.md) - Dimensional model
+- [Data Marts Catalog](dbt_health_insurance/models/data_marts/DATA_MARTS_README.md) - Analytics tables
 
 </td>
 </tr>
@@ -436,35 +527,43 @@ health-insurance-data-warehouse/
 
 ---
 
-## 🎯 Output Location
+## 🎯 Output Locations
 
-After running `dbt run`, cleaned data is available at:
+After running `dbt run`, data is available across 5 BigQuery datasets:
 
 ```
-📍 BigQuery Location:
-   Project: dw-health-insurance-bipm
-   └── Dataset: raw_dataset
-       └── Schema: cleaned
-           ├── sleep_health_cleaned
-           ├── smartwatch_data_cleaned
-           ├── health_insurance_person_cleaned
-           └── health_insurance_facts_cleaned
+📍 BigQuery Project: dw-health-insurance-bipm
+
+├── raw_dataset                 (Source data - 4 tables)
+├── raw_dataset_staging         (Layer 1 - 4 views)
+├── raw_dataset_cleaned         (Layer 2 - 5 tables)
+├── raw_dataset_star_schema     (Layer 3 - 4 tables)
+└── raw_dataset_data_marts      (Layer 4 - 5 tables)
 ```
 
-**Query Example:**
+**Example Queries:**
+
 ```sql
--- Query cleaned sleep health data
-SELECT *
-FROM `dw-health-insurance-bipm.raw_dataset.cleaned.sleep_health_cleaned`
-WHERE is_invalid_heart_rate = FALSE
-LIMIT 100;
-
--- Check data quality flags
+-- Query data mart for customer insights
 SELECT
-  COUNT(*) as total_rows,
-  SUM(CAST(is_missing_stress_level AS INT64)) as missing_stress,
-  SUM(CAST(is_invalid_heart_rate AS INT64)) as invalid_hr
-FROM `dw-health-insurance-bipm.raw_dataset.cleaned.smartwatch_data_cleaned`;
+    customer_segment,
+    health_status,
+    COUNT(*) as customers,
+    AVG(health_risk_score) as avg_risk
+FROM `dw-health-insurance-bipm.raw_dataset_data_marts.dm_customer_360`
+GROUP BY customer_segment, health_status;
+
+-- Query star schema for detailed analysis
+SELECT
+    p.insurance_gender,
+    o.occupational_category,
+    AVG(f.quality_of_sleep_score) as avg_sleep_quality
+FROM `dw-health-insurance-bipm.raw_dataset_star_schema.fact_health_metrics` f
+JOIN `dw-health-insurance-bipm.raw_dataset_star_schema.dim_person` p
+    ON f.PersonID = p.PersonID
+JOIN `dw-health-insurance-bipm.raw_dataset_star_schema.dim_occupation` o
+    ON f.occupation_id = o.occupation_id
+GROUP BY p.insurance_gender, o.occupational_category;
 ```
 
 ---
@@ -483,11 +582,13 @@ dbt docs serve
 ```
 
 **Lineage Highlights:**
-- 🔵 Source tables (raw data)
-- 🟢 Staging models (views)
-- 🟡 Cleaned models (tables)
+- 🔵 Source tables (4 raw tables)
+- 🟢 Staging models (4 views)
+- 🟡 Cleaned models (5 tables)
+- 🟣 Star schema (3 dimensions + 1 fact)
+- 🔷 Data marts (5 analytics tables)
 - 🔴 Test coverage (39+ tests)
-- ⚡ Dependency graph (DAG)
+- ⚡ Complete dependency graph (DAG)
 
 Or view static lineage diagrams in [DATA_LINEAGE.md](dbt_health_insurance/DATA_LINEAGE.md).
 
@@ -516,15 +617,10 @@ This is an academic project for **HWR Berlin's Data Warehouse course**. Contribu
 
 ## 📖 References & Resources
 
-### Course Materials
-- **Expert Dossier 1:** Modern Data Architecture & Data Serving
-- **Expert Dossier 2:** Extraction Strategies & CDC
-- **Expert Dossier 3:** Transformation Logic & Data Quality Engineering
-- **Expert Dossier 4:** Loading Strategies & History Management
-
 ### External Resources
 - [dbt Documentation](https://docs.getdbt.com/) - Official dbt docs
 - [BigQuery Best Practices](https://cloud.google.com/bigquery/docs/best-practices) - Google Cloud guide
+- [Kimball Dimensional Modeling](https://www.kimballgroup.com/) - Star schema methodology
 - [Data Quality Dimensions](https://www.montecarlodata.com/blog-6-data-quality-dimensions-examples/) - Quality framework
 
 ---
@@ -545,6 +641,7 @@ This is an academic project for **HWR Berlin's Data Warehouse course**. Contribu
 
 **Learning Objectives:**
 - ✅ ELT architecture
+- ✅ Dimensional modeling
 - ✅ Data quality engineering
 - ✅ Automated testing
 - ✅ Production-ready code
@@ -552,6 +649,25 @@ This is an academic project for **HWR Berlin's Data Warehouse course**. Contribu
 </td>
 </tr>
 </table>
+
+---
+
+## 📊 Project Statistics
+
+<div align="center">
+
+| Metric | Count |
+|--------|-------|
+| **Total dbt Models** | 18 |
+| **Total Datasets** | 5 |
+| **Total Automated Tests** | 39+ |
+| **Total Documentation Files** | 13+ |
+| **Rows in Fact Table** | ~94,000 |
+| **Data Marts** | 5 |
+| **Dimensions** | 3 |
+| **Lines of SQL** | ~3,000+ |
+
+</div>
 
 ---
 
@@ -573,7 +689,7 @@ This is an academic project for **HWR Berlin's Data Warehouse course**. Contribu
 
 Special thanks to:
 
-- **Prof. Dr. Sebastian Fischer** - Course instructor and expert dossiers
+- **Prof. Dr. Sebastian Fischer** - Course instructor
 - **dbt Labs** - For the amazing dbt framework
 - **Google Cloud** - For BigQuery platform
 - **HWR Berlin** - For world-class Data Engineering education
@@ -599,6 +715,6 @@ Feel free to use as a reference for learning modern data engineering practices.
 
 ---
 
-**Questions?** Check the [Troubleshooting Guide](dbt_health_insurance/TROUBLESHOOTING.md) or open an issue.
+**Questions?** Check the [Documentation Index](DOCUMENTATION_INDEX.md) or [Troubleshooting Guide](dbt_health_insurance/TROUBLESHOOTING.md)
 
 </div>
