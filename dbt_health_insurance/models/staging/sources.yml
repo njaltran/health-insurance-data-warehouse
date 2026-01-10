@@ -1,0 +1,52 @@
+version: 2
+
+sources:
+  - name: raw_dataset
+    description: Raw data source tables from BigQuery
+    database: dw-health-insurance-bipm
+    schema: raw_dataset
+
+    tables:
+      - name: raw_Sleep_Health_and_Lifestyle_Dataset
+        description: Raw sleep health and lifestyle data with 374 records
+        columns:
+          - name: Person ID
+            description: Unique identifier for each person (contains duplicates)
+          - name: Gender
+            description: Gender of the person
+          - name: Age
+            description: Age in years
+          - name: Sleep Duration
+            description: Sleep duration in hours
+          - name: Blood Pressure
+            description: Blood pressure in format "systolic/diastolic"
+
+      - name: raw_smartwatch_health_data
+        description: Raw smartwatch health metrics with 10,001 records (all columns stored as STRING)
+        columns:
+          - name: User ID
+            description: Unique identifier for smartwatch user
+          - name: Heart Rate_BPM
+            description: Heart rate in beats per minute (stored as STRING)
+          - name: Blood Oxygen Level %
+            description: Blood oxygen saturation percentage (stored as STRING)
+
+      - name: raw_health_insurance_person_dim
+        description: Raw person dimension with inconsistent date formats and gender values
+        columns:
+          - name: Person_id
+            description: Unique person identifier (may contain whitespace)
+          - name: birthdate
+            description: Birth date in various formats (YYYY-MM-DD, DD-MM-YYYY, MM/DD/YYYY, etc.)
+          - name: gender
+            description: Gender with inconsistent values (m, f, male, female, MALE, other)
+
+      - name: health_insurance_insurance_facts_raw
+        description: Raw insurance facts table with financial metrics
+        columns:
+          - name: Person_id
+            description: Foreign key to person dimension (may contain whitespace)
+          - name: insurance_cost_year
+            description: Annual insurance cost
+          - name: year
+            description: Year of the insurance record

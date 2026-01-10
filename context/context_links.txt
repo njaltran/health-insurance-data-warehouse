@@ -1,0 +1,2 @@
+https://docs.getdbt.com/reference/resource-configs/bigquery-configs
+https://github.com/dbt-labs/dbt-core

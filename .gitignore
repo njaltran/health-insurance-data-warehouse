@@ -1,0 +1,227 @@
+# =======================================================================================
+# Git Ignore for Health Insurance Data Warehouse Project
+# =======================================================================================
+
+# ========================
+# dbt Specific
+# ========================
+dbt_health_insurance/target/
+dbt_health_insurance/dbt_packages/
+dbt_health_insurance/logs/
+dbt_health_insurance/dbt_modules/
+*.log
+
+# Profiles (contains sensitive connection info)
+dbt_health_insurance/profiles.yml
+profiles.yml
+**/profiles.yml
+
+# ========================
+# Credentials & Secrets
+# ========================
+# BigQuery service account keys
+*.json
+!dbt_health_insurance/packages.yml
+!dbt_health_insurance/**/schema.yml
+!dbt_health_insurance/**/sources.yml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.tfvars
+
+# Google Cloud credentials
+gcp-credentials.json
+service-account*.json
+*-key.json
+
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+pipenv/
+Pipfile.lock
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# pyenv
+.python-version
+
+# ========================
+# IDE & Editors
+# ========================
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.*.sw?
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ========================
+# Operating System
+# ========================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ========================
+# Data Files (Optional)
+# ========================
+# Uncomment if you don't want to commit raw data
+# *.csv
+# *.xlsx
+# *.xls
+# *.parquet
+# *.json
+# data/
+# raw_data/
+
+# ========================
+# Build & Compiled Files
+# ========================
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.dylib
+*.test
+*.out
+
+# ========================
+# Test & Coverage
+# ========================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+.hypothesis/
+.tox/
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# ========================
+# Documentation Build
+# ========================
+docs/_build/
+site/
+
+# ========================
+# Temporary Files
+# ========================
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+.cache/
+
+# ========================
+# Project Specific
+# ========================
+# Compiled SQL from dbt
+dbt_health_insurance/target/
+dbt_health_insurance/compiled/
+dbt_health_insurance/run/
+
+# dbt state files
+dbt_health_insurance/.user.yml
+dbt_health_insurance/manifest.json
+
+# Personal notes
+TODO.txt
+notes.txt
+scratch/
+
+# ========================
+# Package Managers
+# ========================
+node_modules/
+package-lock.json
+yarn.lock

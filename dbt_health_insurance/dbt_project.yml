@@ -1,0 +1,75 @@
+# =====================================================================================================================
+# dbt Project Configuration
+# =====================================================================================================================
+# Name: Health Insurance Data Warehouse
+# Purpose: Clean and transform health and insurance data following modern data engineering practices
+# =====================================================================================================================
+
+name: 'health_insurance_dw'
+version: '1.0.0'
+config-version: 2
+
+# Project profile (connects to BigQuery)
+profile: 'health_insurance'
+
+# Directories
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Target directory for compiled SQL
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Model configurations
+models:
+  health_insurance_dw:
+    # Staging models - materialized as views (cheap, always fresh)
+    staging:
+      +materialized: view
+      +schema: staging
+      +tags: ["staging"]
+
+    # Cleaned models - materialized as tables (production-ready)
+    cleaned:
+      +materialized: table
+      +schema: cleaned
+      +tags: ["cleaned", "production"]
+
+# Seeds configuration
+seeds:
+  health_insurance_dw:
+    +schema: seeds
+    +quote_columns: false
+
+# Tests configuration
+tests:
+  health_insurance_dw:
+    +store_failures: true
+    +schema: test_failures
+
+# Variables (can be overridden at runtime)
+vars:
+  # Date range for filtering
+  current_run_date: "{{ run_started_at.strftime('%Y-%m-%d') }}"
+
+  # Data quality thresholds
+  max_heart_rate: 220
+  min_heart_rate: 30
+  max_blood_oxygen: 100
+  min_blood_oxygen: 70
+  max_age: 120
+  min_year: 2000
+
+# On-run-start hooks
+on-run-start:
+  - "{{ log('Starting dbt run for Health Insurance DW...', info=True) }}"
+
+# On-run-end hooks
+on-run-end:
+  - "{{ log('dbt run completed successfully!', info=True) }}"

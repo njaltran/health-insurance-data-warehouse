@@ -1,0 +1,18 @@
+# dbt packages configuration
+# These packages provide additional macros and tests
+
+packages:
+  - package: dbt-labs/dbt_utils
+    version: 1.1.1
+    # Provides useful macros like:
+    # - unique_combination_of_columns
+    # - expression_is_true
+    # - dateadd, datediff
+    # - surrogate_key generation
+
+  - package: calogica/dbt_expectations
+    version: 0.10.1
+    # Provides Great Expectations-style tests:
+    # - expect_column_values_to_be_between
+    # - expect_column_values_to_match_regex
+    # - expect_table_row_count_to_be_between

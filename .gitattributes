@@ -1,0 +1,41 @@
+# Git attributes for line endings and language detection
+
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# SQL files
+*.sql text eol=lf linguist-language=SQL
+
+# YAML files
+*.yml text eol=lf linguist-language=YAML
+*.yaml text eol=lf linguist-language=YAML
+
+# Markdown files
+*.md text eol=lf linguist-language=Markdown
+
+# Python files
+*.py text eol=lf linguist-language=Python
+
+# Shell scripts
+*.sh text eol=lf
+
+# CSV files (treat as binary to prevent diff issues)
+*.csv binary
+
+# Excel files
+*.xlsx binary
+*.xls binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+
+# PDFs
+*.pdf binary
+
+# Exclude generated files from language stats
+target/ linguist-generated=true
+dbt_packages/ linguist-vendored=true
+logs/ linguist-generated=true

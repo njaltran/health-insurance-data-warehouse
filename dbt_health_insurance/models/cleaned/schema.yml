@@ -1,0 +1,322 @@
+version: 2
+
+models:
+  # =====================================================================================================================
+  # SLEEP HEALTH CLEANED MODEL
+  # =====================================================================================================================
+  - name: sleep_health_cleaned
+    description: |
+      Production-ready sleep health data with comprehensive data quality checks.
+
+      **Cleaning Steps Applied:**
+      - Deduplication by person_id
+      - Blood pressure parsing (systolic/diastolic)
+      - NULL handling for sleep_disorder
+      - Range validation for all metrics
+      - Standardized categorical values
+
+      **Data Quality:**
+      - Primary key uniqueness enforced
+      - Heart rate range: 30-220 bpm
+      - Sleep duration: 0-24 hours
+      - Age: 0-120 years
+
+    columns:
+      - name: person_id
+        description: Unique identifier for each person (PRIMARY KEY)
+        tests:
+          - unique
+          - not_null
+
+      - name: gender
+        description: Gender (normalized to lowercase)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['male', 'female']
+
+      - name: age
+        description: Age in years
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 AND <= 120"
+
+      - name: occupation
+        description: Occupation (normalized to lowercase)
+        tests:
+          - not_null
+
+      - name: sleep_duration_hours
+        description: Sleep duration in hours (validated range 0-24)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 AND <= 24"
+
+      - name: quality_of_sleep_score
+        description: Quality of sleep score (1-10 scale)
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 1 AND <= 10"
+
+      - name: heart_rate_bpm
+        description: Heart rate in beats per minute (validated range 30-220)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 30 AND <= 220"
+
+      - name: blood_pressure_systolic
+        description: Systolic blood pressure (parsed from raw data)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 70 AND <= 250"
+
+      - name: blood_pressure_diastolic
+        description: Diastolic blood pressure (parsed from raw data)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 40 AND <= 150"
+
+      - name: daily_steps
+        description: Daily step count
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: sleep_disorder
+        description: Sleep disorder type (none, insomnia, sleep apnea)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['none', 'insomnia', 'sleep apnea']
+
+      - name: is_invalid_sleep_duration
+        description: Data quality flag for invalid sleep duration
+        tests:
+          - not_null
+
+      - name: loaded_at
+        description: Timestamp of when the record was loaded
+        tests:
+          - not_null
+
+  # =====================================================================================================================
+  # SMARTWATCH DATA CLEANED MODEL
+  # =====================================================================================================================
+  - name: smartwatch_data_cleaned
+    description: |
+      Production-ready smartwatch health data with type casting and validation.
+
+      **Cleaning Steps Applied:**
+      - Type casting from STRING to numeric
+      - NULL handling for stress_level (unknown placeholder)
+      - Range validation for vital signs
+      - Full-row deduplication
+
+      **Data Quality:**
+      - Heart rate: 30-220 bpm
+      - Blood oxygen: 70-100%
+      - Step count: >= 0
+      - Sleep duration: 0-24 hours
+
+    columns:
+      - name: user_id
+        description: Unique smartwatch user identifier
+        tests:
+          - not_null
+
+      - name: heart_rate_bpm
+        description: Heart rate in beats per minute
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 30 AND <= 220"
+
+      - name: blood_oxygen_percent
+        description: Blood oxygen saturation percentage (70-100%)
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "IS NULL OR (blood_oxygen_percent >= 70 AND blood_oxygen_percent <= 100)"
+
+      - name: step_count
+        description: Daily step count
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: sleep_duration_hours
+        description: Sleep duration in hours
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 AND <= 24"
+
+      - name: activity_level
+        description: Activity level (active, sedentary, etc.)
+        tests:
+          - not_null
+
+      - name: stress_level
+        description: Stress level (unknown if missing)
+        tests:
+          - not_null
+
+      - name: is_missing_stress_level
+        description: Flag indicating if stress level was originally NULL
+        tests:
+          - not_null
+
+  # =====================================================================================================================
+  # HEALTH INSURANCE PERSON DIMENSION CLEANED MODEL
+  # =====================================================================================================================
+  - name: health_insurance_person_cleaned
+    description: |
+      Production-ready person dimension with multi-format date parsing and standardization.
+
+      **Cleaning Steps Applied:**
+      - Multi-format date parsing (5 formats)
+      - Gender standardization (m, f, male → male, female, other)
+      - Categorical normalization (UPPER for codes)
+      - Age calculation from birthdate
+      - Future date filtering
+
+      **Data Quality:**
+      - Unique person_id
+      - Valid birthdate (1900-present)
+      - Age: 0-120 years
+      - Standardized gender values
+
+    columns:
+      - name: person_id
+        description: Unique person identifier (PRIMARY KEY)
+        tests:
+          - unique
+          - not_null
+
+      - name: birthdate
+        description: Date of birth (parsed from multiple formats)
+        tests:
+          - not_null
+
+      - name: age
+        description: Age calculated from birthdate
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 AND <= 120"
+
+      - name: gender
+        description: Gender (standardized to male, female, other, unknown)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['male', 'female', 'other', 'unknown']
+
+      - name: family_status
+        description: Family/marital status (uppercase)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['MARRIED', 'SINGLE', 'DIVORCED', 'WIDOWED']
+
+      - name: insurance_status
+        description: Insurance status (uppercase)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['ACTIVE', 'INACTIVE', 'PENDING', 'CANCELLED']
+
+      - name: insurance_sign_up_date
+        description: Date when insurance was signed up
+        tests:
+          - not_null
+
+      - name: occupational_category
+        description: Occupational category (lowercase)
+        tests:
+          - not_null
+
+      - name: wealth_bracket
+        description: Wealth bracket (uppercase)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['LOW', 'MEDIUM', 'HIGH', 'UPPER_MIDDLE']
+
+      - name: is_invalid_birthdate
+        description: Flag for invalid birthdate
+        tests:
+          - not_null
+
+  # =====================================================================================================================
+  # HEALTH INSURANCE FACTS CLEANED MODEL
+  # =====================================================================================================================
+  - name: health_insurance_facts_cleaned
+    description: |
+      Production-ready insurance facts with NULL handling and validation.
+
+      **Cleaning Steps Applied:**
+      - NULL replacement with 0 (no activity = 0)
+      - Negative cost filtering
+      - Year validation (2000-present)
+      - Composite key deduplication (person_id + year)
+
+      **Data Quality:**
+      - All costs >= 0
+      - Doctor visits: 0-365
+      - Year: 2000-present
+      - Referential integrity with person dimension
+
+    columns:
+      - name: person_id
+        description: Foreign key to person dimension
+        tests:
+          - not_null
+          - relationships:
+              to: ref('health_insurance_person_cleaned')
+              field: person_id
+
+      - name: year
+        description: Year of the insurance record
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 2000 AND <= EXTRACT(YEAR FROM CURRENT_DATE())"
+
+      - name: insurance_cost_year
+        description: Annual insurance cost
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: cost_to_insurance_amount
+        description: Annual cost to insurance company
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: doctor_visits_count
+        description: Number of annual doctor visits
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 AND <= 365"
+
+      - name: is_missing_doctor_visits
+        description: Flag indicating if doctor visits was originally NULL
+        tests:
+          - not_null
+
+    # Composite key uniqueness test
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - person_id
+            - year
