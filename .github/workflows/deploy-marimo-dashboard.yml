@@ -36,7 +36,7 @@ jobs:
       - name: 📄 Export notebook to HTML-WASM
         run: |
           mkdir -p dist
-          marimo export html-wasm data_marts_dashboard.py -o dist/index.html --mode edit
+          marimo export html-wasm data_marts_dashboard.py -o dist/index.html --mode run
 
       - name: 📦 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
