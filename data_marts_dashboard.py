@@ -30,9 +30,9 @@ def _(mo):
 
 
 @app.cell
-def _(os):
+def _():
     # Define data directory
-    data_dir = os.path.join(os.path.dirname(__file__) if '__file__' in globals() else '.', 'data')
+    data_dir = 'data'
     return (data_dir,)
 
 
